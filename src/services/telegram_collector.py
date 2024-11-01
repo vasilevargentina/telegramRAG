@@ -18,7 +18,7 @@ class TelegramCollector:
     async def collect_messages(self):
         client = await get_client()
         await client.start()
-        
+        logger.info(f"starting message collection. Channels: {Config.TARGET_CHANNELS}")
         try:
             for channel in Config.TARGET_CHANNELS:
                 try:
@@ -28,7 +28,7 @@ class TelegramCollector:
                         limit=None,
                         offset_date=datetime.now() - timedelta(days=Config.MESSAGE_HISTORY_DAYS)
                     )
-                    
+                    logger.info(f"collected {len(messages)} messages from {channel}")
                     # Filter out messages that are already in the database
                     existing_messages = await self.session.execute(
                         select(Message.message_id).where(Message.channel_id == channel_entity.id)
