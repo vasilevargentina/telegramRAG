@@ -8,13 +8,12 @@ from .config import Config
 from .database.database import init_db
 from .bot.handlers import router
 from .bot.middlewares import QueryLimitMiddleware, DatabaseMiddleware
-from .utils.scheduler import setup_scheduler
-from .services.telegram_collector import TelegramCollector
-from .database.database import get_session
+from .utils.scheduler import setup_scheduler, collect_messages
 
 async def main():
     # Setup logging
     logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
     
     # Initialize database
     await init_db()
@@ -34,18 +33,15 @@ async def main():
     scheduler = setup_scheduler()
     scheduler.start()
     
-    # Start message collection in background
-    async def start_collector():
-        async for session in get_session():
-            collector = TelegramCollector(session)
-            await collector.collect_messages()
-    
-    asyncio.create_task(start_collector())
+    # Perform initial message collection
+    logger.info("Starting initial message collection...")
+    await collect_messages()
     
     try:
         await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(bot)
     finally:
+        scheduler.shutdown()
         await bot.session.close()
 
 if __name__ == "__main__":

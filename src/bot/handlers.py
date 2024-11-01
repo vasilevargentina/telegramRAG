@@ -10,6 +10,8 @@ from aiogram.filters import Command
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..database.models import User
 from ..config import Config
+from ..services.vector_store import VectorStore
+from sqlalchemy import func
 
 router = Router()
 query_service = QueryService()
@@ -49,7 +51,8 @@ async def help_handler(message: Message):
         "/start - Start the bot\n"
         "/ask [question] - Ask a question\n"
         "/help - Show this help message\n"
-        "/status - Check your daily query limit\n\n"
+        "/status - Check your daily query limit\n"
+        "/vectorinfo - Check vector store status\n\n"
         "Example: /ask What are the latest updates?"
     )
 
@@ -69,4 +72,27 @@ async def status_handler(message: Message, session: AsyncSession):
     else:
         await message.answer(
             f"You have {Config.MAX_QUERIES_PER_DAY} queries available today."
+        ) 
+
+@router.message(Command("vectorinfo"))
+async def vectorinfo_handler(message: Message, session: AsyncSession):
+    try:
+        # Get vector store stats
+        vector_store = VectorStore()
+        vector_info = await vector_store.get_collection_info()
+        
+        # Get database message count
+        result = await session.execute(select(func.count(Message.id)))
+        db_count = result.scalar()
+        
+        # Format response
+        await message.answer(
+            "📊 Vector Store Status:\n\n"
+            f"Documents in vector store: {vector_info['total_documents']}\n"
+            f"Messages in database: {db_count}\n"
+            f"Collection name: {vector_info['collection_name']}"
+        )
+    except Exception as e:
+        await message.answer(
+            "Sorry, couldn't retrieve vector store information."
         ) 
