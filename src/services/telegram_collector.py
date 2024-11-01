@@ -12,13 +12,11 @@ class TelegramCollector:
             'qa_bot',
             Config.TELEGRAM_API_ID,
             Config.TELEGRAM_API_HASH
-        )
+        ).start(bot_token=Config.BOT_TOKEN)
         self.vector_store = VectorStore()
         self.session = session
     
     async def collect_messages(self):
-        await self.client.start()
-        
         for channel in Config.TARGET_CHANNELS:
             channel_entity = await self.client.get_entity(channel)
             messages = await self.client.get_messages(
