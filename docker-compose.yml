@@ -14,6 +14,7 @@ services:
       - TARGET_CHANNELS=${TARGET_CHANNELS}
       - DATABASE_URL=sqlite+aiosqlite:///data/qa_bot.db
       - VECTOR_STORE_PATH=/app/data/vector_store
+      - SESSION_STRING=${SESSION_STRING}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import sqlite3; sqlite3.connect('/app/data/qa_bot.db')"]

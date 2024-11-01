@@ -23,4 +23,7 @@ class Config:
     MESSAGE_HISTORY_DAYS = int(os.getenv("MESSAGE_HISTORY_DAYS", "30"))
     
     # Query limits
-    MAX_QUERIES_PER_DAY = int(os.getenv("MAX_QUERIES_PER_DAY", "5")) 
+    MAX_QUERIES_PER_DAY = int(os.getenv("MAX_QUERIES_PER_DAY", "5"))
+    
+    # Telegram User Session
+    SESSION_STRING = os.getenv("SESSION_STRING")
