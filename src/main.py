@@ -7,7 +7,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from .config import Config
 from .database.database import init_db
 from .bot.handlers import router
-from .bot.middlewares import QueryLimitMiddleware
+from .bot.middlewares import QueryLimitMiddleware, DatabaseMiddleware
 from .utils.scheduler import setup_scheduler
 from .services.telegram_collector import TelegramCollector
 from .database.database import get_session
@@ -23,7 +23,8 @@ async def main():
     bot = Bot(token=Config.BOT_TOKEN, parse_mode=ParseMode.HTML)
     dp = Dispatcher(storage=MemoryStorage())
     
-    # Register middleware
+    # Register middlewares
+    dp.message.middleware(DatabaseMiddleware())
     dp.message.middleware(QueryLimitMiddleware())
     
     # Register router

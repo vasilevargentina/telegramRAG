@@ -5,6 +5,7 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..database.models import User
 from ..config import Config
+from ..database.database import AsyncSessionLocal
 
 class QueryLimitMiddleware(BaseMiddleware):
     async def __call__(self, handler, event: Message, data: dict):
@@ -47,3 +48,9 @@ class QueryLimitMiddleware(BaseMiddleware):
             await session.commit()
         
         return await handler(event, data) 
+
+class DatabaseMiddleware(BaseMiddleware):
+    async def __call__(self, handler, event, data):
+        async with AsyncSessionLocal() as session:
+            data['session'] = session
+            return await handler(event, data) 

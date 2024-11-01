@@ -24,7 +24,7 @@ async def start_handler(message: Message, session: AsyncSession):
     )
 
 @router.message(Command("ask"))
-async def ask_handler(message: Message):
+async def ask_handler(message: Message, session: AsyncSession):
     question = message.text.replace("/ask", "").strip()
     if not question:
         await message.answer(
